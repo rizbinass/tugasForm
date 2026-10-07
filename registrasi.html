@@ -42,7 +42,7 @@
       <p class="text-slate-400 text-xs sm:text-sm mt-1.5">Buat akun untuk klaim harga member & instan reload</p>
     </header>
 
-    <form action="api/proses.php" method="POST" enctype="multipart/form-data" class="space-y-5">
+    <form id="regForm" action="api/proses_supa.php" method="POST" enctype="multipart/form-data" class="space-y-5">
       <div>
         <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Username / Game ID</label>
         <input
@@ -101,5 +101,11 @@
       </button>
     </form>
   </main>
+
+  <script>
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      document.getElementById('regForm').action = 'proses_local.php';
+    }
+  </script>
 </body>
 </html>
