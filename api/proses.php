@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+ini_set('display_errors', '0');
+
 $isVercel = getenv('VERCEL') === '1' || isset($_ENV['VERCEL']);
 $uploadDir = $isVercel ? sys_get_temp_dir() . '/uploads/' : dirname(__DIR__) . '/uploads/';
 
@@ -23,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 
         $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        $mimeType = function_exists('mime_content_type')
+            ? mime_content_type($file['tmp_name'])
+            : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
 
         if ($file['size'] > $maxSize) {
             $message = 'Ukuran file melebihi batas maksimal 2MB.';
