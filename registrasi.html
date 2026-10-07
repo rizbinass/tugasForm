@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrasi Member Top-Up Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            surface: '#0f1420',
+            stroke: 'rgba(255, 255, 255, 0.08)',
+            accent: '#06b6d4',
+            neon: '#a855f7',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#07090e] text-slate-100 font-sans min-h-screen flex items-center justify-center p-4 selection:bg-cyan-500 selection:text-black">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <main class="relative w-full max-w-md bg-surface/90 border border-stroke rounded-3xl p-7 sm:p-8 shadow-2xl backdrop-blur-xl">
+    <header class="mb-7 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold tracking-wider uppercase mb-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+        Top-Up Member Portal
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Registrasi Akun</h1>
+      <p class="text-slate-400 text-xs sm:text-sm mt-1.5">Buat akun untuk klaim harga member & instan reload</p>
+    </header>
+
+    <form action="api/proses.php" method="POST" enctype="multipart/form-data" class="space-y-5">
+      <div>
+        <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Username / Game ID</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          required
+          placeholder="contoh: shadow_striker"
+          class="w-full bg-[#090d16] border border-stroke rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+        >
+      </div>
+
+      <div>
+        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          placeholder="minimal 8 karakter"
+          class="w-full bg-[#090d16] border border-stroke rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+        >
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Foto Profil Akun</label>
+        <label
+          for="foto_profil"
+          class="group flex flex-col items-center justify-center border border-dashed border-stroke rounded-2xl p-4 bg-[#090d16]/70 hover:border-cyan-400/60 hover:bg-[#090d16] cursor-pointer transition text-center"
+        >
+          <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300 group-hover:text-cyan-400 group-hover:scale-105 transition mb-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <p id="file-name" class="text-xs text-slate-300 font-medium">Klik untuk upload foto profil</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">PNG, JPG, WEBP (Maks. 2MB)</p>
+          <input
+            type="file"
+            id="foto_profil"
+            name="foto_profil"
+            accept="image/*"
+            required
+            class="hidden"
+            onchange="document.getElementById('file-name').textContent = this.files[0]?.name || 'Klik untuk upload foto profil'"
+          >
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full mt-2 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm py-3.5 px-5 rounded-xl shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition"
+      >
+        <span>Daftar Akun</span>
+        <img src="icon-submit.svg" alt="Submit Icon" class="w-4 h-4 invert brightness-0">
+      </button>
+    </form>
+  </main>
+</body>
+</html>
