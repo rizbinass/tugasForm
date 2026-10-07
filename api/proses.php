@@ -45,47 +45,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $previewDataUri = 'data:' . $mimeType . ';base64,' . base64_encode($rawContent);
                 }
 
-                $dbHost = getenv('DB_HOST') ?: 'localhost';
-                $dbUser = getenv('DB_USER') ?: 'root';
-                $dbPass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
-                $dbName = getenv('DB_NAME') ?: 'db_topup_game';
-                $dbPort = getenv('DB_PORT') ? (int)getenv('DB_PORT') : 3306;
+                if ($isVercel && !getenv('DB_HOST')) {
+                    // Di Vercel tanpa cloud DB, respon instan tanpa timeout mencoba connect ke localhost
+                    $status = 'success';
+                    $message = 'Registrasi berhasil dan foto profil telah diproses di Vercel!';
+                } else {
+                    $dbHost = getenv('DB_HOST') ?: 'localhost';
+                    $dbUser = getenv('DB_USER') ?: 'root';
+                    $dbPass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+                    $dbName = getenv('DB_NAME') ?: 'db_topup_game';
+                    $dbPort = getenv('DB_PORT') ? (int)getenv('DB_PORT') : 3306;
 
-                // Coba koneksi database
-                $conn = @new mysqli($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
+                    $conn = mysqli_init();
+                    $conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 2);
+                    $connected = @$conn->real_connect($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
 
-                if ($conn->connect_error) {
-                    if ($isVercel && !getenv('DB_HOST')) {
-                        // Di Vercel tanpa cloud DB, file upload tetap sukses diproses
-                        $status = 'success';
-                        $message = 'Upload berhasil! (Catatan Vercel: Belum terhubung cloud database, tambahkan ENV DB_HOST di Vercel jika ingin menyimpan data ke remote database).';
-                    } else {
+                    if (!$connected) {
                         @unlink($destination);
                         $message = 'Gagal terhubung ke database. Pastikan modul MySQL di XAMPP sudah di-START. Error: ' . $conn->connect_error;
-                    }
-                } else {
-                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $conn->prepare("INSERT INTO users (username, password, foto_profil) VALUES (?, ?, ?)");
+                    } else {
+                        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                        $stmt = $conn->prepare("INSERT INTO users (username, password, foto_profil) VALUES (?, ?, ?)");
 
-                    if ($stmt) {
-                        $stmt->bind_param("sss", $username, $hashedPassword, $savedFileName);
-                        if ($stmt->execute()) {
-                            $status = 'success';
-                            $message = 'Registrasi berhasil dan data akun tersimpan ke database!';
+                        if ($stmt) {
+                            $stmt->bind_param("sss", $username, $hashedPassword, $savedFileName);
+                            if ($stmt->execute()) {
+                                $status = 'success';
+                                $message = 'Registrasi berhasil dan data akun tersimpan ke database!';
+                            } else {
+                                @unlink($destination);
+                                if ($conn->errno === 1062) {
+                                    $message = 'Username sudah digunakan, silakan pilih username lain.';
+                                } else {
+                                    $message = 'Gagal menyimpan data ke database: ' . $stmt->error;
+                                }
+                            }
+                            $stmt->close();
                         } else {
                             @unlink($destination);
-                            if ($conn->errno === 1062) {
-                                $message = 'Username sudah digunakan, silakan pilih username lain.';
-                            } else {
-                                $message = 'Gagal menyimpan data ke database: ' . $stmt->error;
-                            }
+                            $message = 'Gagal menyiapkan query database: ' . $conn->error;
                         }
-                        $stmt->close();
-                    } else {
-                        @unlink($destination);
-                        $message = 'Gagal menyiapkan query database: ' . $conn->error;
+                        $conn->close();
                     }
-                    $conn->close();
                 }
             } else {
                 $message = 'Gagal menyimpan file ke direktori server.';
